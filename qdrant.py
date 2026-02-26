@@ -40,7 +40,7 @@ class QdrantRecognizer:
             "Вразовский Владислав Александрович"
         ]
         
-        for filename in ['gosha.jpg', 'ron.jpg', 'eva.jpg', 'vlad.jpg']:
+        for filename in ['goshadorm.jpg', 'ron.jpg', 'eva.jpg', 'vlad.jpg']:
             img_path = os.path.join(ideal_path, filename)
             img = cv2.imread(img_path)
 

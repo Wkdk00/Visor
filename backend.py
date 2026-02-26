@@ -8,28 +8,26 @@ from message import TextArea
 from qdrant import QdrantRecognizer
 from ocr import ocr
 from time import time
+from typing import Callable
 
-# База данных
 connection = sqlite3.connect('Employee.db', check_same_thread=False)
 cursor = connection.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS Users (
     id INTEGER PRIMARY KEY, name TEXT NOT NULL, post TEXT NOT NULL)''')
 connection.commit()
 
-# Инициализация БД (пропускаем если уже есть)
 try:
     cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
                    (1, 'Астанин Георгий Константинович', 'УЧАСТНИК'))
     cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (2, 'Кудрин Ролан Михайлович', 'УЧАСТНИК'))
+                   (2, 'Иванов Иван Иванович', 'УЧАСТНИК'))
     cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (3, 'Богомолова Ева Анатольевна', 'УЧАСТНИК'))
+                   (3, '', 'УЧАСТНИК'))
     cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (4, 'Вразовский Владислав Александрович', 'ЭКСПЕРТ'))
+                   (4, 'Петров Петр Петрович', 'ЭКСПЕРТ'))
     connection.commit()
 except: pass
 
-# Глобальные объекты
 model = YOLO(r'C:\Users\Админ\Desktop\python\cv\runs\detect\train4\weights\best.pt')
 qdrant = QdrantRecognizer()
 message = TextArea()
@@ -38,9 +36,11 @@ class ThreadResult:
     def __init__(self):
         self.text = None
         self.lock = threading.Lock()
-    def put(self, text):
+
+    def put(self, text: str) -> None:
         with self.lock: self.text = text
-    def get_and_clear(self):
+
+    def get_and_clear(self) -> str | None:
         with self.lock:
             if self.text:
                 res = self.text
@@ -68,10 +68,10 @@ class PersonTemplate:
         self.OCR_name = ""
         self.vector_post = ""
 
-    def set_vector_name(self, vec_name):
+    def set_vector_name(self, vec_name: str):
         self.vector_name = vec_name
 
-    def set_ocr_name(self, ocr_name):
+    def set_ocr_name(self, ocr_name: str):
         self.OCR_name = "".join(s for s in ocr_name if s in self.ALPHABET)
 
     def comparsion_vector_ocr(self):
@@ -167,14 +167,17 @@ class Model:
         
         return frame
 
-def process_worker(func, frame, box, storage):
+def process_worker(
+        func: Callable,
+        frame: np.ndarray,
+        box: tuple[float, float, float, float],
+        storage: ThreadResult) -> None:
     try:
         text = func(frame, box)
         storage.put(text)
     except Exception as e:
         print(f"Worker error: {e}")
 
-# FastAPI приложение
 thread_storage = ThreadResult()
 app = FastAPI()
 PRODUCER_URL = "ws://localhost:8080/ws/video"
@@ -236,5 +239,4 @@ async def stream(ws: WebSocket):
 
 if __name__ == "__main__":
     import uvicorn
-    print("Starting server on port 8081...")
     uvicorn.run(app, host="0.0.0.0", port=8081)

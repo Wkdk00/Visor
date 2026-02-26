@@ -1,23 +1,25 @@
 import pytesseract, cv2, numpy as np
 
-def ocr(
-        frame: np.ndarray,
-        box: tuple[float, float, float, float]
-        ) -> str:
-    """Функция для распознавания Должности и ФИО сотрудника
-    с бейджа. Функция из исходного фрейма оставляет только бейдж,
-    преобразует его и выполняет OCR с помощью tesseract.
+def ocr(frame: np.ndarray, box: tuple[float, float, float, float]) -> str:
+    x1, y1, x2, y2 = map(int, box)
+    roi = frame[y1:y2, x1:x2]
+    
+    if roi.size == 0:
+        return ""
 
-    Args:
-        frame (np.ndarray): Кадр с видеопотока в формате BGR
-        box (tuple[float, float, float, float]): рамка бейджа (x1, y1, x2, y2)
-
-    Returns:
-        str: Должность и ФИО сотрудника
-    """
-    frame = frame[int(box[1]):int(box[3]), int(box[0]):int(box[2])]
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    _, frame = cv2.threshold(frame, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    text = pytesseract.image_to_string(frame, lang='rus')
-    text = text.replace("\n", " ")
-    return text
+    roi = cv2.resize(roi, (0, 0), fx=5, fy=5, interpolation=cv2.INTER_CUBIC)
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(gray)
+    
+    _, binary = cv2.threshold(enhanced, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    kernel = np.ones((3,3), np.uint8)
+    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+    binary = cv2.bitwise_not(binary)
+    
+    config = r'--oem 3 --psm 6'
+    text = pytesseract.image_to_string(binary, lang='rus', config=config)
+    
+    return ' '.join(text.split())
