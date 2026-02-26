@@ -1,6 +1,17 @@
-import pytesseract, cv2, numpy as np
+import cv2
+import numpy as np
+import pytesseract
 
 def ocr(frame: np.ndarray, box: tuple[float, float, float, float]) -> str:
+    """Распознаёт текст в указанной области кадра с помощью Tesseract OCR.
+
+    Args:
+        frame (np.ndarray): Исходный фрейм в BGR
+        box (tuple[float, float, float, float]): Ограничивающая рамка текста
+
+    Returns:
+        str: Текст с бейджика
+    """
     x1, y1, x2, y2 = map(int, box)
     roi = frame[y1:y2, x1:x2]
     

@@ -1,85 +1,26 @@
-import cv2, numpy as np, asyncio, websockets, sqlite3, threading
-from fastapi import FastAPI, WebSocket
-from starlette.concurrency import run_in_threadpool
-from ultralytics import YOLO
-from Levenshtein import ratio
-from utils import class_count, check_motionless, check_PPE_intersections
-from message import TextArea
-from qdrant import QdrantRecognizer
-from ocr import ocr
+import asyncio
+import threading
 from time import time
 from typing import Callable
 
-connection = sqlite3.connect('Employee.db', check_same_thread=False)
-cursor = connection.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS Users (
-    id INTEGER PRIMARY KEY, name TEXT NOT NULL, post TEXT NOT NULL)''')
-connection.commit()
+import cv2
+import numpy as np
+import websockets
+from fastapi import FastAPI, WebSocket
+from Levenshtein import ratio
+from starlette.concurrency import run_in_threadpool
+from ultralytics import YOLO
 
-try:
-    cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (1, 'Астанин Георгий Константинович', 'УЧАСТНИК'))
-    cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (2, 'Иванов Иван Иванович', 'УЧАСТНИК'))
-    cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (3, '', 'УЧАСТНИК'))
-    cursor.execute('INSERT INTO Users (id, name, post) VALUES (?, ?, ?)', 
-                   (4, 'Петров Петр Петрович', 'ЭКСПЕРТ'))
-    connection.commit()
-except: pass
+from app.message import TextArea
+from app.ocr import ocr
+from app.person import PersonTemplate
+from app.thread_storage import ThreadResult
+from app.qdrant import QdrantRecognizer
+from app.utils import class_count, check_motionless, check_PPE_intersections
 
 model = YOLO(r'C:\Users\Админ\Desktop\python\cv\runs\detect\train4\weights\best.pt')
 qdrant = QdrantRecognizer()
 message = TextArea()
-
-class ThreadResult:
-    def __init__(self):
-        self.text = None
-        self.lock = threading.Lock()
-
-    def put(self, text: str) -> None:
-        with self.lock: self.text = text
-
-    def get_and_clear(self) -> str | None:
-        with self.lock:
-            if self.text:
-                res = self.text
-                self.text = None
-                return res
-            return None
-
-class PersonTemplate:
-    def __init__(self):
-        self.vector_name = ""
-        self.vector_post = ""
-        self.OCR_name = ""
-        self.STATE_DICT = {0:"unregistered", 1:"vectorized", 2:"ocr", 3:"verify", 4:"error"}
-        self.THRESHOLD = 0.7
-        self.ALPHABET = "АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя"
-
-    def state(self):
-        if not self.vector_name and not self.OCR_name: return self.STATE_DICT[0]
-        elif self.vector_name and not self.OCR_name: return self.STATE_DICT[1]
-        elif self.vector_name and self.OCR_name: return self.STATE_DICT[2]
-        return self.STATE_DICT[3]
-    
-    def clear(self):
-        self.vector_name = ""
-        self.OCR_name = ""
-        self.vector_post = ""
-
-    def set_vector_name(self, vec_name: str):
-        self.vector_name = vec_name
-
-    def set_ocr_name(self, ocr_name: str):
-        self.OCR_name = "".join(s for s in ocr_name if s in self.ALPHABET)
-
-    def comparsion_vector_ocr(self):
-        cursor.execute("SELECT post FROM Users WHERE name = ? LIMIT 1", (self.vector_name,))
-        result = cursor.fetchone()
-        self.vector_post = result[0] if result else ""
-        employee = (self.vector_post + self.vector_name).replace(" ", "")
-        return ratio(employee, self.OCR_name) > self.THRESHOLD
 
 class Model:
     def __init__(self):
@@ -95,7 +36,7 @@ class Model:
             4:("badge", (255, 255, 255))
         }
 
-    def predict_yolo(self, frame):
+    def predict_yolo(self, frame: np.ndarray) -> list[dict]:
         pred = self.model(frame, verbose=False)
         boxes = pred[0].boxes
         results = []
@@ -111,24 +52,24 @@ class Model:
             self.ex = False
         return results
 
-    def draw_rectangles(self, frame, boxes, classes=[0,1,2,3,4], confidence=0.4):
+    def draw_rectangles(self, frame, boxes, classes: list = [0,1,2,3,4], confidence=0.4):
         for box in boxes:
             if box["cls"] in classes and box["conf"] > confidence:
                 x1, y1, x2, y2 = map(int, box["bbox"])
                 cv2.rectangle(frame, (x1, y1), (x2, y2), self.DICT_CLASSES[box["cls"]][1], 3)
         return frame
 
-    def check_camera(self, frame, person, message):
+    def check_camera(self, frame):
         if self.ex or self.counter == self.FREQUENCY:
             objects = self.predict_yolo(frame)
             frame = self.draw_rectangles(frame, objects)
             self.counter = 0
             if message.empty():
-                frame = self.detect_pipeline(frame, objects, person, message)
+                frame = self.detect_pipeline(frame, objects)
         self.counter += 1
         return frame
 
-    def detect_pipeline(self, frame, objects, person, message):
+    def detect_pipeline(self, frame, objects):
         count_objects, _ = class_count(objects)
         
         if person.state() == "unregistered":
