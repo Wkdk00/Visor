@@ -3,6 +3,9 @@ import cv2, os, numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 
+from app.config import IDEAL_PATH, VECTOR_THRESHOLD, IDEAL_FACES
+from app.decorators import safe_execute
+
 class QdrantRecognizer:
     """Распознавание лиц на базе InsightFace с векторным поиском в Qdrant.
     
@@ -26,34 +29,32 @@ class QdrantRecognizer:
             vectors_config=VectorParams(size=512, distance=Distance.COSINE)
         )
         
-        self.IDEAL_PATH = r"C:\tmp\ideal"
+        self.IDEAL_PATH = IDEAL_PATH
         self._load_ideal_vectors(self.IDEAL_PATH)
     
-    def _load_ideal_vectors(self, ideal_path: str):
-        """Загружает и векторизует эталонные изображения сотрудников."""
+    @safe_execute()
+    def _load_ideal_vectors(self, ideal_path: str) -> None:
+        """Загружает и векторизует эталонные изображения сотрудников.
         
-        vectors = []
-        names = [
-            "Астанин Георгий Константинович",
-            "Иванов Иван Иванович",
-            "Андреев Андрей Андреевич",
-            "Петров Петр Петрович"
-        ]
-        
-        for filename in ['goshadorm.jpg', 'ron.jpg', 'eva.jpg', 'vlad.jpg']:
+        Args:
+            ideal_path (str): Путь к папке с идеальными изображениями.
+        """
+        points = []
+        for idx, (filename, full_name) in enumerate(IDEAL_FACES.items()):
             img_path = os.path.join(ideal_path, filename)
             img = cv2.imread(img_path)
 
             vec = self._preprocess_face(img)
             
-            vectors.append(vec)
-        
-        # Upsert в Qdrant
-        self.client.upsert(collection_name="test", points=[
-            PointStruct(id=i+1, vector=vectors[i], payload={"name": names[i]})
-            for i in range(len(vectors))
-        ])
+            points.append(PointStruct(
+                id=idx,
+                vector=vec, 
+                payload={"name": full_name, "filename": filename}
+            ))
+
+        self.client.upsert(collection_name="test", points=points)
     
+    @safe_execute(default_return=np.zeros(512, dtype=np.float32))
     def _preprocess_face(self, face: np.ndarray) -> np.ndarray:
         """Выполняет препроцессинг изображения лица и извлекает векторный эмбеддинг.
 
@@ -71,6 +72,7 @@ class QdrantRecognizer:
         vec = vec / np.linalg.norm(vec)
         return vec
     
+    @safe_execute(default_return="Not defined")
     def scan(self, frame: np.ndarray, box: tuple[float, float, float, float]) -> str:
         """Векторизует лицо по рамке и ищет совпадение в базе.
 
@@ -92,6 +94,6 @@ class QdrantRecognizer:
         res = self.client.query_points(collection_name="test", query=vec, limit=1).points
         
         # Возврат результата по порогу схожести
-        if res and res[0].score > 0.95:
+        if res and res[0].score > VECTOR_THRESHOLD:
             return res[0].payload.get("name")
         return "Not defined"

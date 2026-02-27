@@ -1,5 +1,8 @@
 from collections import deque
 
+from app.decorators import safe_execute
+
+@safe_execute(default_return=False)
 def check_PPE_intersections(boxes: list[dict]) -> bool:
     """Проверяет пересечение СИЗ с лицом человека.
 
@@ -21,6 +24,7 @@ def check_PPE_intersections(boxes: list[dict]) -> bool:
         return True
     return False
 
+@safe_execute(default_return=0)
 def IoU(
         box1: tuple[float, float, float, float],
         box2: tuple[float, float, float, float]
@@ -56,6 +60,7 @@ def IoU(
 
 motionless = deque()
 
+@safe_execute(default_return=False)
 def check_motionless(
         bbox: tuple[float, float, float, float]) -> bool:
     """Проверяет, находится ли объект в неподвижном состоянии.
@@ -81,6 +86,7 @@ def check_motionless(
         return True
     return False
 
+@safe_execute(default_return=({}, 0))
 def class_count(boxes: list[dict]) -> tuple[dict, int]:
     """Подсчитывает количество объектов каждого класса.
 
@@ -100,6 +106,7 @@ def class_count(boxes: list[dict]) -> tuple[dict, int]:
         hashmap[cls] +=1
     return hashmap, length
 
+@safe_execute(default_return=False)
 def boxes_intersect(
         box1: tuple[float, float, float, float],
         box2: tuple[float, float, float, float]

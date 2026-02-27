@@ -1,3 +1,5 @@
+# Позже будет заменён на PostgreSQL + Alembic
+
 import sqlite3
 
 connection = sqlite3.connect('Employee.db', check_same_thread=False)

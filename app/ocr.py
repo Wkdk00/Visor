@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 import pytesseract
+from app.decorators import safe_execute
 
+@safe_execute(default_return="")
 def ocr(frame: np.ndarray, box: tuple[float, float, float, float]) -> str:
     """Распознаёт текст в указанной области кадра с помощью Tesseract OCR.
 
