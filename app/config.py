@@ -1,12 +1,16 @@
 from enum import Enum
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-MODEL_PATH = r'C:\Users\Админ\Desktop\python\cv\runs\detect\train4\weights\best.pt'
-IDEAL_PATH = r"C:\tmp\ideal"
-PRODUCER_URL = "ws://localhost:8080/ws/video"
+MODEL_PATH = os.getenv("MODEL_PATH")
+IDEAL_PATH = os.getenv("IDEAL_PATH")
+PRODUCER_URL = os.getenv("PRODUCER_URL")
 THRESHOLD = 0.7
 VECTOR_THRESHOLD = 0.95
 CONFIDENCE = 0.4
+MOTIONLESS_FRAME = 30
 
 IDEAL_FACES = {
     "goshadorm.jpg": "Астанин Георгий Константинович",

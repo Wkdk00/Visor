@@ -76,7 +76,14 @@ async def fetch() -> None:
                 await asyncio.sleep(1)
 
 @safe_execute()
-async def process():
+async def process() -> None:
+    """
+    Задача обработки видеопотока (Consumer/Processor).
+    
+    Забирает сырые кадры из `raw_q`, выполняет тяжелую логику 
+    (детекция, распознавание, OCR) в отдельном потоке, чтобы не блокировать 
+    event-loop, и помещает результат в `proc_q`.
+    """
     while True:
         try:
             frame = await raw_q.get()
@@ -89,7 +96,23 @@ async def process():
             print(f"Process error: {e}")
 
 @app.websocket("/ws/processed")
-async def stream(ws: WebSocket):
+async def stream(ws: WebSocket) -> None:
+    """
+    WebSocket эндпоинт для стриминга обработанного видео клиенту.
+    
+    Управляет жизненным циклом подключения:
+    1. Принимает соединение.
+    2. Запускает фоновые задачи `fetch` и `process`.
+    3. В цикле отправляет данные из `proc_q` клиенту.
+    4. При разрыве соединения корректно отменяет фоновые задачи.
+    
+    Args:
+        ws (WebSocket): Объект WebSocket соединения.
+    
+    Raises:
+        WebSocketDisconnect: При разрыве соединения клиентом.
+        Exception: При критических ошибках стриминга.
+    """
     await ws.accept()
     t1 = asyncio.create_task(fetch())
     t2 = asyncio.create_task(process())

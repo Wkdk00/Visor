@@ -90,7 +90,6 @@ class Pipeline:
             self._handle_unregistered(counts, objects, frame)
 
         elif self.person.state() == PersonStates.VECTORIZED:
-            print("start ocr")
             self._handle_vectorized(counts, objects, frame)
 
         elif self.person.state() == PersonStates.OCR_READY:
@@ -122,7 +121,7 @@ class Pipeline:
         else:
             self._process_main_bbox(frame, objects, ClassesNames.CLASS_PERSON, self.vec_DB.scan)
                 
-        self._check_storage()
+        self._check_storage(ClassesNames.CLASS_PERSON)
 
     @safe_execute()
     def _handle_vectorized(self, 
@@ -141,10 +140,9 @@ class Pipeline:
             frame (np.ndarray): Исходный кадр.
         """
         if counts[ClassesNames.CLASS_BADGE] == 1:
-            print("start _pmb")
             self._process_main_bbox(frame, objects, ClassesNames.CLASS_BADGE, ocr)
         
-        self._check_storage()
+        self._check_storage(ClassesNames.CLASS_BADGE)
 
     @safe_execute()
     def _handle_ocr_ready(self) -> None:
@@ -161,15 +159,21 @@ class Pipeline:
         self.person.clear()
 
     @safe_execute()
-    def _check_storage(self) -> None:
+    def _check_storage(self, current_cls: int) -> None:
         """Проверяет и обрабатывает результаты из потокобезопасного хранилища.
 
         Извлекает результат асинхронной обработки (распознавание лица или OCR),
         обновляет соответствующие поля сотрудника и выводит имя в интерфейс.
         После чтения хранилище автоматически очищается.
+        
+        Args:
+            current_cls (int): Класс объекта для обработки (PERSON или BADGE).
         """
         name = self.storage.get_and_clear()
-        if name:
+        if name and current_cls == ClassesNames.CLASS_PERSON:
+            self.person.set_vector_name(name)
+            self.message.add_text(name, "name")
+        elif name and current_cls == ClassesNames.CLASS_BADGE:
             self.person.set_ocr_name(name)
             self.message.add_text(name, "name")
 
@@ -194,7 +198,6 @@ class Pipeline:
         """
         bbox = self._get_bbox(objects, current_cls)
         if check_motionless(bbox):
-            print("thread")
             threading.Thread(target=self.process_worker, 
                 args=(function, frame, bbox, self.storage)).start()
 

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time CV Stream</title>
+    <style>
+        body { background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        canvas { border: 2px solid #0f0; max-width: 90vw; max-height: 90vh; }
+        #status { position: fixed; top: 10px; left: 10px; color: #0f0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div id="status">Connecting...</div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        const img = new Image();
+        let fps = 0, last = performance.now(), frames = 0;
+        let currentUrl = null; // Храним текущий URL для очистки
+
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            
+            // FPS counter
+            frames++;
+            const now = performance.now();
+            if (now - last >= 1000) {
+                fps = frames;
+                frames = 0;
+                last = now;
+                status.textContent = `FPS: ${fps} | ${img.width}x${img.height}`;
+            }
+        };
+
+        const ws = new WebSocket('ws://localhost:8081/ws/processed');
+        ws.binaryType = 'arraybuffer';
+
+        ws.onopen = () => { status.textContent = 'Connected'; status.style.color = '#0f0'; };
+        ws.onclose = () => { status.textContent = 'Disconnected'; status.style.color = '#f00'; };
+        ws.onerror = (e) => { status.textContent = 'Error'; console.error(e); };
+
+        ws.onmessage = (event) => {
+            // Очищаем СТАРЫЙ URL перед созданием нового
+            if (currentUrl) {
+                URL.revokeObjectURL(currentUrl);
+            }
+            
+            const blob = new Blob([event.data], { type: 'image/jpeg' });
+            currentUrl = URL.createObjectURL(blob);
+            img.src = currentUrl;
+            // НЕ перезаписываем img.onload здесь!
+        };
+
+        // Очистка при закрытии страницы
+        window.onbeforeunload = () => {
+            if (currentUrl) URL.revokeObjectURL(currentUrl);
+            ws.close();
+        };
+    </script>
+</body>
+</html>

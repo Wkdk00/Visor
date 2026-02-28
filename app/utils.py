@@ -1,5 +1,6 @@
 from collections import deque
 
+from app.config import MOTIONLESS_FRAME
 from app.decorators import safe_execute
 
 @safe_execute(default_return=False)
@@ -75,9 +76,9 @@ def check_motionless(
         bool: True если объект не двигается (IoU > 0.9), иначе False.
     """
     motionless.append(bbox)
-    if len(motionless) < 30:
+    if len(motionless) < MOTIONLESS_FRAME:
         return False
-    elif len(motionless) > 30:
+    elif len(motionless) > MOTIONLESS_FRAME:
         motionless.popleft()
 
     area = IoU(bbox, motionless[0])
