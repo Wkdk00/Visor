@@ -8,14 +8,14 @@ import websockets
 from fastapi import FastAPI, WebSocket
 from starlette.concurrency import run_in_threadpool
 
-from app.config import PRODUCER_URL
-from app.decorators import safe_execute
-from app.message import TextArea
-from app.model_detection import Model
-from app.person import PersonTemplate
-from app.pipeline import Pipeline
-from app.thread_storage import ThreadResult
-from app.qdrant import QdrantRecognizer
+from core.config import PRODUCER_URL
+from core.decorators import safe_execute
+from services.message import TextArea
+from ml.model_detection import Model
+from services.person import PersonTemplate
+from services.pipeline import Pipeline
+from core.thread_storage import ThreadResult
+from database.qdrant.qdrant import QdrantRecognizer
 
 
 qdrant = QdrantRecognizer()
