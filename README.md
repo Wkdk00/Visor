@@ -13,7 +13,6 @@
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.95%2B-009688?style=flat&logo=fastapi" alt="FastAPI"></a>
   <a href="https://github.com/ultralytics/ultralytics"><img src="https://img.shields.io/badge/YOLO-ComputerVision-ff6b35?style=flat&logo=yolo" alt="YOLO"></a>
   <a href="https://qdrant.tech/"><img src="https://img.shields.io/badge/Qdrant-VectorDB-3c79f5?style=flat&logo=qdrant" alt="Qdrant"></a>
-  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat&logo=postgresql" alt="PostgreSQL"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 
@@ -228,7 +227,6 @@ This project is distributed under the MIT License. See the [LICENSE](LICENSE) fi
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.95%2B-009688?style=flat&logo=fastapi" alt="FastAPI"></a>
   <a href="https://github.com/ultralytics/ultralytics"><img src="https://img.shields.io/badge/YOLO-ComputerVision-ff6b35?style=flat&logo=yolo" alt="YOLO"></a>
   <a href="https://qdrant.tech/"><img src="https://img.shields.io/badge/Qdrant-VectorDB-3c79f5?style=flat&logo=qdrant" alt="Qdrant"></a>
-  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat&logo=postgresql" alt="PostgreSQL"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 <p align="center">
