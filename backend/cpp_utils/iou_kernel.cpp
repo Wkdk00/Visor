@@ -29,7 +29,7 @@ double calculate_iou_cpp(std::tuple<float, float, float, float> box1,
 }
 
 // Склеивание с Python
-PYBIND11_MODULE(cpp_utils, m) {
+PYBIND11_MODULE(cpp_iou, m) {
     m.doc() = "Fast C++ IoU implementation"; 
     m.def("calculate_iou", &calculate_iou_cpp, "Calculate IoU between two boxes");
 }

@@ -3,7 +3,7 @@ from collections import deque
 from core.config import MOTIONLESS_FRAME
 from core.decorators import safe_execute
 
-from cpp_utils import calculate_iou
+from cpp_iou import calculate_iou
 
 @safe_execute(default_return=False)
 def check_PPE_intersections(boxes: list[dict]) -> bool:

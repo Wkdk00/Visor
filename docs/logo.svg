@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="techDarkBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0055ff" />
+      <stop offset="100%" stop-color="#002288" />
+    </linearGradient>
+  </defs>
+
+  <g fill="url(#techDarkBlue)">
+    <polygon points="50,55 92,55 125,180 102,180 50,55" />
+    
+    <polygon points="250,55 208,55 175,180 198,180 250,55" />
+    
+    <polygon points="98,55 120,55 150,152 131,180 98,55" />
+    
+    <polygon points="202,55 180,55 150,152 169,180 202,55" />
+    
+    <polygon points="113,195 187,195 150,245" />
+  </g>
+</svg>
