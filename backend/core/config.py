@@ -1,5 +1,5 @@
 from enum import Enum
-import os
+import os, numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +10,7 @@ MODEL_ALIGNMENT_PATH = os.getenv("MODEL_ALIGNMENT_PATH")
 IDEAL_PATH = os.getenv("IDEAL_PATH")
 PRODUCER_URL = os.getenv("PRODUCER_URL")
 THRESHOLD = 0.7
-VECTOR_THRESHOLD = 0.7
+VECTOR_THRESHOLD = 0.5
 CONFIDENCE = 0.4
 MOTIONLESS_FRAME = 30
 
@@ -34,3 +34,9 @@ class PersonStates(Enum):
     VECTORIZED = "vectorized"
     OCR_READY = "ocr"
     ERROR = "error"
+
+REFERENCE_LANDMARKS = np.array([
+    [38.2946, 51.6963], [73.5318, 51.5014], 
+    [56.0252, 71.7366], 
+    [41.5493, 92.3655], [70.7299, 92.2041]
+], dtype=np.float32)
