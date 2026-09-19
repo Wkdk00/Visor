@@ -55,10 +55,9 @@ The main criterion for developing Visor is **complete autonomy and privacy**. Th
 The video below shows the complete employee verification cycle: from approaching the camera to the access decision. 
 A detailed description of each processing stage is provided in the [Verification Process](#verification-process) section below.
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%">
-  </video>
-</p>
+<div align="center">
+<video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%"></video>
+</div>
 
 ---
 
@@ -285,9 +284,9 @@ This project is distributed under the MIT License. See the [LICENSE](LICENSE) fi
 
 Главный критерий разработки Visor — **полная автономность и приватность**. Система спроектирована для работы в изолированном контуре без доступа к интернету. Никаких внешних облачных API — абсолютно все модели развернуты локально и выполняются прямо на вашем сервере.
 
-<p align="center">
-  <img src="docs/Visor_tiny.png" alt="Visor Stream Pipeline" width="750">
-</p>
+<div align="center">
+<video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%"></video>
+</div>
 
 ---
 
