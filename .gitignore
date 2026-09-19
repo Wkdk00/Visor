@@ -1,0 +1,5 @@
+.env
+deployment/volumes/
+backend/ideal/
+storage/
+camera/__pycache__/

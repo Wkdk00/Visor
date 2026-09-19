@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Visor</h1>
+          <p>Операционный центр</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-button active" data-view="stream" type="button">Трансляция</button>
+        <button class="nav-button" data-view="employees" type="button">Сотрудники</button>
+        <button class="nav-button" data-view="positions" type="button">Должности</button>
+        <button class="nav-button" data-view="biometrics" type="button">Биометрия</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>Состояние системы</p>
+        <span id="sidebarStatus">Готово к работе</span>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Панель управления</p>
+          <h2 id="pageTitle">Трансляция</h2>
+        </div>
+        <div class="topbar-meta">
+          <span class="status-pill" id="topbarStatus">Система в норме</span>
+        </div>
+      </header>
+
+      <section class="view active" id="streamView">
+        <div class="hero-card">
+          <div class="video-frame">
+            <canvas id="streamCanvas" class="stream-canvas"></canvas>
+
+            <div class="video-overlay">
+              <span id="streamBadge" class="badge badge-warning">Ожидание подключения</span>
+              <h3>Поток видеонаблюдения</h3>
+              <p id="streamMessage">Подключите WebSocket-сервер для просмотра данных в реальном времени.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <label class="field">
+              <span>WebSocket URL</span>
+              <input id="streamUrl" type="text" value="ws://localhost:8081/ws/processed" />
+            </label>
+
+            <div class="actions">
+              <button id="connectStreamBtn" class="primary" type="button">Подключить</button>
+              <button id="disconnectStreamBtn" class="secondary" type="button">Отключить</button>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <small>Соединение</small>
+                <strong id="connectionState">Отключено</strong>
+              </div>
+              <div class="metric-card">
+                <small>Кадров в секунду</small>
+                <strong id="frameCounter">0</strong>
+              </div>
+              <div class="metric-card">
+                <small>Статус</small>
+                <strong id="serviceStatus">Ожидание</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="employeesView">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Управление персоналом</p>
+            <h3>Сотрудники</h3>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <form id="employeeForm" class="card form-card">
+            <h4>Добавить сотрудника</h4>
+
+            <label class="field">
+              <span>ФИО</span>
+              <input name="name" required />
+            </label>
+
+            <label class="field">
+              <span>Должность</span>
+              <input name="position" required />
+            </label>
+
+            <label class="field">
+              <span>Email</span>
+              <input name="email" type="email" required />
+            </label>
+
+            <label class="field">
+              <span>Телефон</span>
+              <input name="phone" required />
+            </label>
+
+            <button class="primary full" type="submit">Сохранить</button>
+          </form>
+
+          <div class="card table-card">
+            <div class="table-header">
+              <h4>Список сотрудников</h4>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ФИО</th>
+                  <th>Должность</th>
+                  <th>Email</th>
+                  <th>Телефон</th>
+                </tr>
+              </thead>
+              <tbody id="employeesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="positionsView">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Настройка структуры</p>
+            <h3>Должности</h3>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <form id="positionForm" class="card form-card">
+            <h4>Добавить должность</h4>
+
+            <label class="field">
+              <span>Название</span>
+              <input name="title" required />
+            </label>
+
+            <label class="field">
+              <span>Отдел</span>
+              <input name="department" required />
+            </label>
+
+            <label class="field">
+              <span>Уровень</span>
+              <input name="level" required />
+            </label>
+
+            <button class="primary full" type="submit">Сохранить</button>
+          </form>
+
+          <div class="card table-card">
+            <div class="table-header">
+              <h4>Список должностей</h4>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Название</th>
+                  <th>Отдел</th>
+                  <th>Уровень</th>
+                </tr>
+              </thead>
+              <tbody id="positionsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="biometricsView">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Идентификация</p>
+            <h3>Биометрия</h3>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <form id="biometricForm" class="card form-card">
+            <h4>Добавить профиль</h4>
+
+            <label class="field">
+              <span>Имя</span>
+              <input name="name" required />
+            </label>
+
+            <label class="field">
+              <span>Тип шаблона</span>
+              <input name="template" required />
+            </label>
+
+            <label class="field">
+              <span>Статус</span>
+              <select name="status">
+                <option value="Активен">Активен</option>
+                <option value="Ожидание">Ожидание</option>
+                <option value="Отклонён">Отклонён</option>
+              </select>
+            </label>
+
+            <button class="primary full" type="submit">Сохранить</button>
+          </form>
+
+          <div class="card table-card">
+            <div class="table-header">
+              <h4>Список биометрических профилей</h4>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Имя</th>
+                  <th>Тип шаблона</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="biometricsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
