@@ -56,7 +56,8 @@ The video below shows the complete employee verification cycle: from approaching
 A detailed description of each processing stage is provided in the [Verification Process](#verification-process) section below.
 
 <p align="center">
-  <video src="docs/showcase.mp4" controls>
+  <video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%">
+  </video>
 </p>
 
 ---
@@ -296,7 +297,8 @@ This project is distributed under the MIT License. See the [LICENSE](LICENSE) fi
 Подробное описание каждого этапа обработки приведено в разделе [Процесс верификации](#процесс-верификации) ниже.
 
 <p align="center">
-  <video src="docs/showcase.mp4" controls>
+  <video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%">
+  </video>
 </p>
 
 ---
