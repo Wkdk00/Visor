@@ -284,9 +284,9 @@ This project is distributed under the MIT License. See the [LICENSE](LICENSE) fi
 
 Главный критерий разработки Visor — **полная автономность и приватность**. Система спроектирована для работы в изолированном контуре без доступа к интернету. Никаких внешних облачных API — абсолютно все модели развернуты локально и выполняются прямо на вашем сервере.
 
-<div align="center">
-<video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%"></video>
-</div>
+<p align="center">
+  <img src="docs/Visor_tiny.png" alt="Visor Stream Pipeline" width="750">
+</p>
 
 ---
 
@@ -295,10 +295,9 @@ This project is distributed under the MIT License. See the [LICENSE](LICENSE) fi
 На видео ниже показан полный цикл верификации сотрудника: от подхода к камере до принятия решения о допуске. 
 Подробное описание каждого этапа обработки приведено в разделе [Процесс верификации](#процесс-верификации) ниже.
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%">
-  </video>
-</p>
+<div align="center">
+<video src="https://github.com/user-attachments/assets/3a80418b-1307-4269-9c39-bd77096d89d1" controls="controls" width="80%"></video>
+</div>
 
 ---
 
